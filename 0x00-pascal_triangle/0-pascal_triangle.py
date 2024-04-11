@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """pascal triangle module"""
 
+
 def pascal_triangle(n):
     """returns a list of lists of numbers
     representing the pacals triangle set of a given number (n)"""

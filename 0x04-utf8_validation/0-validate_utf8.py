@@ -1,29 +1,47 @@
-#!/usr/bin/env python3
-"""Module for validUtf8 method"""
+#!/usr/bin/python3
+"""
+A method that determines if a given data set
+represents a valid UTF-8 encoding.
+"""
 
 
 def validUTF8(data):
-    """Determines if given data is validated as a UTF-8 encoding
+    """ The main method
     Args:
-        data: list of integers
-    Returns:
-        True if valid UTF-8 encoding, otherwise False
+            data (list[int]): a list of integers
     """
-    num_bytes = 0
-    mask1 = 1 << 7
-    mask2 = 1 << 6
-    for num in data:
-        mask = 1 << 7
-        if num_bytes == 0:
-            while mask & num:
-                num_bytes += 1
-                mask = mask >> 1
-            if num_bytes == 0:
+    expected_leading_bytes = 0
+
+    # the bit patterns for UTF-8 encoding
+    UTF8_BIT_1 = 1 << 7  # 10000000
+    UTF8_BIT_2 = 1 << 6  # 01000000
+
+    # Loop over each byte in the input data
+    for byte in data:
+        # initializing a mask, to check for leading 1's
+        leading_one_mask = 1 << 7
+        if expected_leading_bytes == 0:
+            # the number of 1's in the current leading byte
+            while leading_one_mask & byte:
+                expected_leading_bytes += 1
+                leading_one_mask = leading_one_mask >> 1
+
+            # moveto the next byte
+            if expected_leading_bytes == 0:
                 continue
-            if num_bytes == 1 or num_bytes > 4:
+
+            # invalid sequence
+            if expected_leading_bytes == 1 or\
+                    expected_leading_bytes > 4:
                 return False
+
         else:
-            if not (num & mask1 and not (num & mask2)):
+            if not (byte & UTF8_BIT_1 and not (byte & UTF8_BIT_2)):
                 return False
-        num_bytes -= 1
-    return num_bytes == 0
+
+        expected_leading_bytes -= 1
+
+    if expected_leading_bytes == 0:
+        return True
+    else:
+        return False
